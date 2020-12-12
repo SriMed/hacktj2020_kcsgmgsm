@@ -13,17 +13,17 @@ def get_storm_event_ids():
         conn.request("GET", "/snowiq/v1/historical-storms?%s" % params, "{body}", headers)
         response = conn.getresponse()
         data = response.read()
-        print(data)
+        # print(data)
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
-    # jdata = json.loads(data)
-    # print(jdata)
-    # storm_event_ids = set()
-    # for elem in jdata:
-    #   storm_event_ids.add(elem['stormEventId'])
-    # print(storm_event_ids)
-    # return storm_event_ids
+    jdata = json.loads(data)
+    print(jdata)
+    storm_event_ids = set()
+    for elem in jdata:
+      storm_event_ids.add(elem['stormEventId'])
+    print(storm_event_ids)
+    return storm_event_ids
 
 get_storm_event_ids()
