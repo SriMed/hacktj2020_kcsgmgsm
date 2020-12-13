@@ -1,0 +1,6 @@
+Single Dtree: 0.28390651680632994
+	Feature Predicted Precipitation: 0.09801971428038912
+	Feature Total Snowfall: 0.02474906787015954
+	Feature Total Miles Plowed: 0.8772312178494514
+Random Forest Dtrees: 0.31506951582459153
+Extremely Randomized Dtrees: 0.31506951582459153

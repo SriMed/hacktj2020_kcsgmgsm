@@ -25,10 +25,12 @@ def get_storm_event_ids():
         storm_info = json.loads(response.read())
 
         for depot in storm_info:
-            # data_X.append([elem['predictedPrecipitation'],  depot['totalSnowfall'], depot['totalMilesPlowed']])
-            data_X.append([elem['predictedPrecipitation'], depot['totalMilesPlowed']])
-            data_y.append(depot['totalAmountOfSaltUsed'])
+            # data_X.append([elem['predictedPrecipitation'],  depot['totalSnowfall'], depot['totalMilesPlowed']]) #1
+            data_X.append([elem['predictedPrecipitation'], depot['totalMilesPlowed']]) #2
+            # data_y.append(depot['totalAmountOfSaltUsed'])
 
+            data_y.append([depot['totalAmountOfSaltUsed'], depot['totalTimePlowed']]) #3
+            # data_y.append(depot['totalTimePlowed']) #4
         conn.close()
       except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
@@ -37,5 +39,5 @@ def get_storm_event_ids():
 
 data, data_X, data_y = get_storm_event_ids()
 # print(data_X, data_y)
-pickle.dump((data_X,data_y), open('data.p', 'wb'))
+pickle.dump((data_X,data_y), open('data_3.p', 'wb'))
 print("Finished & pickled data")
