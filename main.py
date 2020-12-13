@@ -1,6 +1,7 @@
 import http.client, urllib.request, urllib.parse, urllib.error, base64
 import json
 import pandas as pd
+import pickle
 
 headers = {
     # Request headers
@@ -25,6 +26,8 @@ def get_storm_event_ids():
     # print(storm_event_ids, len(storm_event_ids))
 
     data = []
+    data_X = []
+    data_y = []
     for elem in storm_event_data:
       try:
         conn = http.client.HTTPSConnection('hacktj2020api.eastbanctech.com')
@@ -32,14 +35,15 @@ def get_storm_event_ids():
         response = conn.getresponse()
         storm_info = json.loads(response.read())
         data.append([elem['stormEventId'], storm_info['eventName'], storm_info['predictedPrecipitation'], storm_info['predictedDuration'], storm_info['totalSnowfall'], storm_info['totalMilesPlowed'], storm_info['totalTimePlowed'], storm_info['totalAmountOfSaltUsed']])
+        data_X.append([storm_info['predictedPrecipitation'], storm_info['predictedDuration']])
+        data_y.append(storm_info['totalAmountOfSaltUsed'])
         conn.close()
       except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
-    return data
+    return data, data_X, data_y
 
-
-
-data = get_storm_event_ids()
-df = pd.DataFrame(data, columns = ["Storm ID","Event Name","Predicted Precipitation","Predicted Duration","Total Snowfall","Total Miles Plowed","Total Time Plowed", "Total Salt Used"])
-print(df)
+data, data_X, data_y = get_storm_event_ids()
+# df = pd.DataFrame(data, columns = ["Storm ID","Event Name","Predicted Precipitation","Predicted Duration","Total Snowfall","Total Miles Plowed","Total Time Plowed", "Total Salt Used"])
+# print(df)
+pickle.dump((data_X,data_y), open('data.p', 'wb'))
