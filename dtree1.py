@@ -16,7 +16,7 @@ def dtrees(X, y, features, dt_file):
     for feature, imp in zip(features, dtree.feature_importances_):
         dt_file.write("\tFeature %s: %s\n" % (feature, imp))
 
-    pickle.dump(dtree, open('dtree.txt', 'wb'))
+    pickle.dump(dtree, open('dtree.p', 'wb'))
 
     #Random Forest Trees
     rf_dtree = RandomForestRegressor(n_estimators=8).fit(X_fit,y_fit)
