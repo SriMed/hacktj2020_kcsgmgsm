@@ -1,4 +1,6 @@
-import http.client, urllib.request, urllib.parse, urllib.error, base64, json
+import http.client, urllib.request, urllib.parse, urllib.error, base64
+import json
+import pandas as pd
 
 headers = {
     # Request headers
@@ -12,18 +14,32 @@ def get_storm_event_ids():
         conn = http.client.HTTPSConnection('hacktj2020api.eastbanctech.com')
         conn.request("GET", "/snowiq/v1/historical-storms?%s" % params, "{body}", headers)
         response = conn.getresponse()
-        data = response.read()
-        # print(data)
+        storm_event_data = json.loads(response.read())
         conn.close()
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
-    jdata = json.loads(data)
-    print(jdata)
-    storm_event_ids = set()
-    for elem in jdata:
-      storm_event_ids.add(elem['stormEventId'])
-    print(storm_event_ids)
-    return storm_event_ids
+    storm_event_ids = []
+    for elem in storm_event_data:
+        storm_event_ids.append(elem['stormEventId'])
+    # print(storm_event_ids, len(storm_event_ids))
 
-get_storm_event_ids()
+    data = []
+    for elem in storm_event_data:
+      try:
+        conn = http.client.HTTPSConnection('hacktj2020api.eastbanctech.com')
+        conn.request("GET", "/snowiq/v1/historical-storms/" + str(elem['stormEventId']) +"/details?%s" % params, "{body}", headers)
+        response = conn.getresponse()
+        storm_info = json.loads(response.read())
+        data.append([elem['stormEventId'], storm_info['eventName'], storm_info['predictedPrecipitation'], storm_info['predictedDuration'], storm_info['totalSnowfall'], storm_info['totalMilesPlowed'], storm_info['totalTimePlowed'], storm_info['totalAmountOfSaltUsed']])
+        conn.close()
+      except Exception as e:
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
+
+    return data
+
+
+
+data = get_storm_event_ids()
+df = pd.DataFrame(data, columns = ["Storm ID","Event Name","Predicted Precipitation","Predicted Duration","Total Snowfall","Total Miles Plowed","Total Time Plowed", "Total Salt Used"])
+print(df)
