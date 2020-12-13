@@ -1,13 +1,8 @@
 import http.client, urllib.request, urllib.parse, urllib.error, base64
 import json
-import pandas as pd
 import pickle
 
-headers = {
-    # Request headers
-    'Ocp-Apim-Subscription-Key': 'd068d24aec2b4fc588d971b320d52c2f',
-}
-
+headers = {'Ocp-Apim-Subscription-Key': 'd068d24aec2b4fc588d971b320d52c2f'}
 params = urllib.parse.urlencode({})
 
 def get_storm_event_ids():
@@ -20,27 +15,18 @@ def get_storm_event_ids():
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
-    # storm_event_ids = []
-    # for elem in storm_event_data:
-    #     storm_event_ids.append([ elem['stormEventId'], *(elem["activationDate"].replace("Z", "-").split("-")) ])
-    # print(storm_event_ids, len(storm_event_ids))
 
-    data = []
-    data_X = []
-    data_y = []
+    data, data_X, data_y = [], [], []
     for elem in storm_event_data:
-      print(elem)
       try:
         conn = http.client.HTTPSConnection('hacktj2020api.eastbanctech.com')
         conn.request("GET", "/snowiq/v1/historical-storms/" + str(elem['stormEventId']) + "/depots?%s" % params, "{body}", headers)
-
         response = conn.getresponse()
         storm_info = json.loads(response.read())
-        # data.append([elem['stormEventId'], storm_info['eventName'], storm_info['predictedPrecipitation'], storm_info['predictedDuration'], storm_info['totalSnowfall'], storm_info['totalMilesPlowed'], storm_info['totalTimePlowed'], storm_info['totalAmountOfSaltUsed']])
-        # data_X.append([storm_info['predictedPrecipitation'], storm_info['predictedDuration']])
 
-        data_X.append([elem['predictedPrecipitation'], storm_info['totalSnowfall'], storm_info['totalSnowfall']])
-        data_y.append(storm_info['totalAmountOfSaltUsed'])
+        for depot in storm_info:
+            data_X.append([elem['predictedPrecipitation'],  depot['totalMilesPlowed']]) # depot['totalSnowfall'],
+            data_y.append(depot['totalAmountOfSaltUsed'])
 
         conn.close()
       except Exception as e:
@@ -49,7 +35,5 @@ def get_storm_event_ids():
     return data, data_X, data_y
 
 data, data_X, data_y = get_storm_event_ids()
-# df = pd.DataFrame(data, columns = ["Storm ID","Event Name","Predicted Precipitation","Predicted Duration","Total Snowfall","Total Miles Plowed","Total Time Plowed", "Total Salt Used"])
-# print(df)
-print(data_x, data_y)
+# print(data_X, data_y)
 pickle.dump((data_X,data_y), open('data.p', 'wb'))
