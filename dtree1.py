@@ -16,6 +16,8 @@ def dtrees(X, y, features, dt_file):
     for feature, imp in zip(features, dtree.feature_importances_):
         dt_file.write("\tFeature %s: %s\n" % (feature, imp))
 
+    pickle.dump(dtree, open('dtree.txt', 'wb'))
+
     #Random Forest Trees
     rf_dtree = RandomForestRegressor(n_estimators=8).fit(X_fit,y_fit)
     accuracy = rf_dtree.score(X_eval,y_eval)
@@ -26,6 +28,8 @@ def dtrees(X, y, features, dt_file):
     accuracy = rf_dtree.score(X_eval,y_eval)
     dt_file.write(f'Extremely Randomized Dtrees: {accuracy}\n')
 
+
+    #Gradient Boosting Trees
     # gb_tree = GradientBoostingRegressor(n_estimators=10, learning_rate=1.0, max_depth=1, random_state=0).fit(X_fit, y_fit)
     # accuracy = gb_tree.score(X_eval, y_eval)
     # dt_file.write(f'Gradient Boosting Dtrees {accuracy}')
